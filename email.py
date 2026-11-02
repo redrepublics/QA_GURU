@@ -1,12 +1,43 @@
 # Данный скрипт является заданием к уроку https://school.qa.guru/pl/teach/control/lesson/view?id=350245561&editMode=0
 import datetime
-
+from faker import Faker
+import random
+from pprint import pprint
+import re
+import json
 # Обьявляем переменные
 
-subj = 'Str'
-send_mail = 'Str1'
-to = 'Str2'
 send_data = datetime.datetime.now().strftime('%Y-%m-%d')
+is_corporate = 'vladislav@company.ru'
+clean_body = Faker().paragraph().replace("\t", " ").replace("\n", " ")
+subj = 'Test subject'
+login = 'red@'
+
+# формирование письма с удалением лишних символов
+sent_text_test = f"""
+Добрый день!
+
+Направляю вам информацию для ознакомления и дальнейшего рассмотрения.
+В рамках текущей работы мы подготовили необходимые материалы, которые
+позволят оценить текущее состояние проекта, определить основные задачи
+и согласовать дальнейшие шаги.
+
+Просьба ознакомиться с представленной информацией и сообщить, если
+потребуются дополнительные пояснения или уточнения. Также будем
+признательны за обратную связь по предложенным решениям и срокам
+выполнения работ.
+
+Предлагаю при необходимости организовать дополнительное обсуждение,
+чтобы рассмотреть открытые вопросы, определить приоритеты и распределить
+ответственность между участниками процесса.
+
+Буду ожидать вашего ответа. Заранее благодарю за уделённое время
+и сотрудничество!
+
+С уважением,
+Команда проекта.
+"""
+sent_text = re.sub(r'\s+', ' ', sent_text_test).strip()
 
 # Списки персональных и интерпрайс доменов (примеры). Тут намеренно есть повторы, верхний регистр и пробелы
 personal_domains = [' Gmail.com ','list.ru', 'yahoo.com','outlook.com','hotmail.com','icloud.com','yandex.ru','mail.ru','list.ru','bk.ru','inbox.ru']
@@ -52,32 +83,34 @@ clean_personal_domains, clean_corporate_domains = remove_duplication(
     clean_personal_domains, clean_corporate_domains
 )
 
-print(clean_personal_domains)
-print(clean_corporate_domains)
+# print(clean_personal_domains)
+# print(clean_corporate_domains)
+
+# Проверяем email на корпоративный домен
+def is_corporate_fun(is_corporate, clean_corporate_domains):
+    return is_corporate.split('@')[-1].lower() in clean_corporate_domains
+
+result = is_corporate_fun(is_corporate, clean_corporate_domains)
+# print(result)
 
 
-#
-# # Проверяем оба списка на предмет повторов. Поскольку по умолчанию ТЗ нет, считаем что эталонным должен быть первый
-# # список
-# def not_duplication(clean_personal, clean_corporate):
-#     return not set(clean_personal).intersection(set(clean_corporate))
-#     if  not_duplication(clean_corporate, clean_corporate) == set():
-#         return True
-#     else:
-#         return False
-# print(not_duplication(personal_domains, corporate_domains))
+# Формируем письмо
+random_domain_corpoate = f'{login}{random.choice(clean_corporate_domains)}'
+ramdom_domain_personal = f'{login}{random.choice(clean_personal_domains)}'
 
+# print(random_domain_corpoate)
 
-
-
-#
-#
 # # Обьявляем словарь заготовку
-# mail_dict = {
-#     "subject": {subj},
-#     "from": {send_mail},
-#     "to": {to},
-#     "date": {send_data}
-# }
-#
-# print(mail_dict)
+mail_dict = {
+    "subject": subj,
+    "from": random_domain_corpoate,
+    "to": ramdom_domain_personal,
+    "date": send_data,
+    'clean_body': sent_text
+}
+
+mail_dict["sent_text"] = f"""Кому: {mail_dict["to"]}, от {mail_dict["from"]}
+Тема: {mail_dict["subject"]}, дата {mail_dict["date"]}
+
+{mail_dict["clean_body"]}"""
+print(mail_dict["sent_text"])
