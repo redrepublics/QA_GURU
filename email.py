@@ -5,6 +5,7 @@ import random
 from pprint import pprint
 import re
 import json
+import math
 # Обьявляем переменные
 
 send_data = datetime.datetime.now().strftime('%Y-%m-%d')
@@ -90,13 +91,15 @@ clean_personal_domains, clean_corporate_domains = remove_duplication(
 def is_corporate_fun(is_corporate, clean_corporate_domains):
     return is_corporate.split('@')[-1].lower() in clean_corporate_domains
 
-result = is_corporate_fun(is_corporate, clean_corporate_domains)
+is_corporate = is_corporate_fun(is_corporate, clean_corporate_domains)
 # print(result)
 
+# Формируем маску по ТЗ
+masked_from = f'{login.split('@')[0][:2]}***@'
+# Формируем маску
+random_domain_corpoate = f'{masked_from}{random.choice(clean_corporate_domains)}'
+ramdom_domain_personal = f'{masked_from}{random.choice(clean_personal_domains)}'
 
-# Формируем письмо
-random_domain_corpoate = f'{login}{random.choice(clean_corporate_domains)}'
-ramdom_domain_personal = f'{login}{random.choice(clean_personal_domains)}'
 
 # print(random_domain_corpoate)
 
@@ -113,4 +116,44 @@ mail_dict["sent_text"] = f"""Кому: {mail_dict["to"]}, от {mail_dict["from"
 Тема: {mail_dict["subject"]}, дата {mail_dict["date"]}
 
 {mail_dict["clean_body"]}"""
+#Печатаем красивое письмо
 print(mail_dict["sent_text"])
+
+# Считаем кол-во страниц для печати и проверяем пустое ли письмо
+if not sent_text.strip():
+    print("Пустое письмо")
+    is_body_empty = False
+else:
+    symbols_count = len(sent_text)
+    pages = math.ceil(symbols_count / 500)
+    print(f"\nНужно {pages} страниц для печати")
+    is_body_empty = True
+
+# Проверяем, пустая ли тема письма
+if not subj.strip():
+    is_subject_empty = False
+else:
+    is_subject_empty = True
+
+
+
+# удаляем лишнее из списка персональных доменов
+
+for domain in ['list.ru', 'bk.ru']:
+    if domain in clean_personal_domains:
+        clean_personal_domains.remove(domain)
+if is_corporate == True:
+    print("Входит в корпоративный список")
+else:
+    print('Входит в частный список, или не значится')
+
+
+if is_body_empty == True:
+    print('Письмо содержит данные')
+else:
+    print('Письмо пустое')
+
+if is_body_empty == True:
+    print('Есть тема сообщения')
+else:
+    print('Тема сообщения отсутсвует')
