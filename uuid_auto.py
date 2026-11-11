@@ -16,8 +16,7 @@ def get_uuid_auto():
 
 
 
-def uuid_auto(count_iter):
-    uuid_text = 'autotest'
+def uuid_auto(count_iter, change_text):
     result = []
     for _ in range(count_iter):
         new_uuid = get_uuid_auto()
@@ -25,6 +24,6 @@ def uuid_auto(count_iter):
         result.append(new_uuid_auto)
     return result
 
-uuids_generate = uuid_auto(10)
+uuids_generate = uuid_auto(10, 'autotest')
 print(uuids_generate)
 
